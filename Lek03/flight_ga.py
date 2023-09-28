@@ -209,7 +209,7 @@ def annealingoptimize(domain, costf, vec=None, T=10000.0, cool=0.95, step=1):
     return vec
 
 
-def geneticoptimize(domain, costf, vec=None, popsize=50, step=1, mutprob=0.2, elite=0.2, maxiter=10, printbest=False):
+def geneticoptimize(domain, costf, vec=None, popsize=10, step=1, mutprob=0.2, elite=0.2, maxiter=10, printbest=False):
     """
     domain  = the valid domain in which we can look for a minimum
               an example would be domain = [(0, 10), (0, 10), (0, 10), (0, 10)] for a four
