@@ -138,8 +138,11 @@ def discrete_scatter(x1, x2, y=None, markers=None, s=10, ax=None,
 
 min_acc = [1]
 max_acc = [0]
+avg_acc = []
+iterations = 50
+hiddenlayer = [5, 5, 5]
 
-for i in range(0, 50):
+for i in range(0, iterations):
     # generate 2d classification dataset
     X, y = make_moons(n_samples=100, noise=0.1)
     # scatter plot, dots colored by class value
@@ -158,7 +161,7 @@ for i in range(0, 50):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
 
-    mlp = MLPClassifier(solver='lbfgs', max_iter=1000, random_state=0, hidden_layer_sizes=[10, 10, 10], alpha=0.0001)
+    mlp = MLPClassifier(solver='lbfgs', max_iter=2000, random_state=0, hidden_layer_sizes=hiddenlayer, alpha=0.00001)
     mlp.fit(X_train, y_train)
 
     # plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
@@ -173,6 +176,7 @@ for i in range(0, 50):
 
     class_report = classification_report(y_test, predictions)
     accuracy = accuracy_score(y_test, predictions)
+    avg_acc.append(accuracy)
 
     if(accuracy > max_acc[0]):
         max_acc = [accuracy, class_report, mlp, X_train, y_train]
@@ -180,16 +184,24 @@ for i in range(0, 50):
     if(accuracy < min_acc[0]):
         min_acc = [accuracy, class_report, mlp, X_train, y_train]
 
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
 print("Best accuracy for this was: " + str(max_acc[0]) )
 print("Class report for best accuracy:\n" + max_acc[1] )
-plot_2d_separator(max_acc[2], max_acc[3], fill=True, alpha=.3, cm = cm1)
-discrete_scatter(max_acc[3][:, 0], max_acc[3][:, 1], max_acc[4])
+plot_2d_separator(max_acc[2], max_acc[3], fill=True, alpha=.3, cm = cm1, ax=ax1)
+discrete_scatter(max_acc[3][:, 0], max_acc[3][:, 1], max_acc[4], ax=ax1)
 #pyplot.show()
 print()
 
 print("worst accuracy for this was: " + str(min_acc[0]) )
 print("Class report for worst accuracy:\n" + min_acc[1] )
-plot_2d_separator(min_acc[2], min_acc[3], fill=True, alpha=.3)
-discrete_scatter(min_acc[3][:, 0], min_acc[3][:, 1], min_acc[4])
+plot_2d_separator(min_acc[2], min_acc[3], fill=True, alpha=.3, ax=ax2)
+discrete_scatter(min_acc[3][:, 0], min_acc[3][:, 1], min_acc[4], ax=ax2)
+
+print()
+print("Average accuracy: %0.2f" % ((sum(avg_acc)/iterations)*100) + "%")
+
+
+pyplot.tight_layout()
 pyplot.show()
 
