@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Mon December 9 15:16:37 2018
@@ -5,18 +6,16 @@ Created on Mon December 9 15:16:37 2018
 @author: sila
 """
 
-from sklearn.datasets import make_moons;
+from sklearn.datasets import make_circles;
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 import numpy as np
 
 from matplotlib.colors import ListedColormap, colorConverter
-from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 cm3 = ListedColormap(['#0000aa', '#ff2020', '#50ff50'])
 cm2 = ListedColormap(['#0000aa', '#ff2020'])
-cm1 = ListedColormap(['#0789f2', '#ff7220'])
 
 from matplotlib import pyplot
 from pandas import DataFrame
@@ -136,72 +135,71 @@ def discrete_scatter(x1, x2, y=None, markers=None, s=10, ax=None,
 
     return lines
 
-min_acc = [1]
-max_acc = [0]
-avg_acc = []
-iterations = 50
-hiddenlayer = [5, 5, 5]
 
-for i in range(0, iterations):
-    # generate 2d classification dataset
-    X, y = make_moons(n_samples=100, noise=0.1)
-    # scatter plot, dots colored by class value
-    df = DataFrame(dict(x=X[:,0], y=X[:,1], label=y))
-    # colors = {0:'red', 1:'blue'}
-    # fig, ax = pyplot.subplots()
-    # grouped = df.groupby('label')
-    # for key, group in grouped:
-    #     group.plot(ax=ax, kind='scatter', x='x', y='y', label=key, color=colors[key])
-
-    # pyplot.show()
-
-
-    from sklearn.neural_network import MLPClassifier
-    from sklearn.model_selection import train_test_split
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
-
-    mlp = MLPClassifier(solver='lbfgs', max_iter=2000, random_state=0, hidden_layer_sizes=hiddenlayer, alpha=0.00001)
-    mlp.fit(X_train, y_train)
-
-    # plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
-    # discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
-
-    # pyplot.show()
-
-    predictions = mlp.predict(X_test)
-
-    # matrix = confusion_matrix(y_test, predictions)
-    # print(matrix)
-
-    class_report = classification_report(y_test, predictions)
-    accuracy = accuracy_score(y_test, predictions)
-    avg_acc.append(accuracy)
-
-    if(accuracy > max_acc[0]):
-        max_acc = [accuracy, class_report, mlp, X_train, y_train]
-
-    if(accuracy < min_acc[0]):
-        min_acc = [accuracy, class_report, mlp, X_train, y_train]
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-
-print("Best accuracy for this was: " + str(max_acc[0]) )
-print("Class report for best accuracy:\n" + max_acc[1] )
-plot_2d_separator(max_acc[2], max_acc[3], fill=True, alpha=.3, cm = cm1, ax=ax1)
-discrete_scatter(max_acc[3][:, 0], max_acc[3][:, 1], max_acc[4], ax=ax1)
-#pyplot.show()
-print()
-
-print("worst accuracy for this was: " + str(min_acc[0]) )
-print("Class report for worst accuracy:\n" + min_acc[1] )
-plot_2d_separator(min_acc[2], min_acc[3], fill=True, alpha=.3, ax=ax2)
-discrete_scatter(min_acc[3][:, 0], min_acc[3][:, 1], min_acc[4], ax=ax2)
-
-print()
-print("Average accuracy: %0.2f" % ((sum(avg_acc)/iterations)*100) + "%")
-
-
-pyplot.tight_layout()
+from matplotlib import pyplot
+from pandas import DataFrame
+# generate 2d classification dataset
+# generate 2d classification dataset
+X, y = make_circles(n_samples=100, noise=0.05)
+# scatter plot, dots colored by class value
+df = DataFrame(dict(x=X[:,0], y=X[:,1], label=y))
+colors = {0:'red', 1:'blue'}
+fig, ax = pyplot.subplots()
+grouped = df.groupby('label')
+for key, group in grouped:
+    group.plot(ax=ax, kind='scatter', x='x', y='y', label=key, color=colors[key])
 pyplot.show()
+
+# imports models
+from sklearn.svm import SVC
+
+# Create SVM classifiers with different kernels
+svm_linear = SVC(kernel='linear', C= 100)
+svm_rbf = SVC(kernel='rbf', C= 100)
+svm_sigmoid = SVC(kernel='sigmoid', C= 100)
+svm_poly5 = SVC(kernel='poly', degree=5, C= 100)
+
+#Fit the SVM classifiers to the data
+svm_linear.fit(X, y)
+svm_rbf.fit(X, y)
+svm_sigmoid.fit(X, y)
+svm_poly5.fit(X, y)
+
+#Plot the decision boundaries
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+#Linear SVM
+plt.subplot(2, 2, 1)
+plot_2d_separator(svm_linear, X, fill=True, alpha=.3)
+discrete_scatter(X[:, 0], X[:, 1], y)
+plt.title("Linear Kernel")
+
+#RBF SVM
+plt.subplot(2, 2, 2)
+plot_2d_separator(svm_rbf, X, fill=True, alpha=.3)
+discrete_scatter(X[:, 0], X[:, 1], y)
+plt.title("RBF Kernel")
+
+#Polynomial (degree=3) SVM
+plt.subplot(2, 2, 3)
+plot_2d_separator(svm_sigmoid, X, fill=True, alpha=.3)
+discrete_scatter(X[:, 0], X[:, 1], y)
+plt.title("Sigmoid kernel")
+
+#Polynomial (degree=5) SVM
+plt.subplot(2, 2, 4)
+plot_2d_separator(svm_poly5, X, fill=True, alpha=.3)
+discrete_scatter(X[:, 0], X[:, 1], y)
+plt.title("Poly Kernel (Degree=5)")
+
+plt.tight_layout()
+plt.show()
+
+#pyplot.show()
+
+
+
+
+
+
 
